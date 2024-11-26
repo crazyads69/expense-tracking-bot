@@ -6,7 +6,11 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "elysia": "latest"
+    "@elysiajs/eden": "latest",
+    "elysia": "latest",
+    "openai": "^4.73.1",
+    "telegraf": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
     "bun-types": "latest"
