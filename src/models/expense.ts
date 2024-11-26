@@ -19,6 +19,7 @@ export const ExpenseSchema = z.object({
   paymentMethod: z
     .enum(["Tiền mặt", "Thẻ ngân hàng", "Ví điện tử", "Khác"])
     .default("Tiền mặt"),
+  user_id: z.string(),
 });
 
 export type Expense = z.infer<typeof ExpenseSchema>;
