@@ -75,11 +75,11 @@ services:
     command: >
       bash -c "
         echo 'Waiting for MongoDB to start...'
-        until mongo --host mongo1:27017 --eval 'print(\"waited for connection\")'; do
+        until mongosh --host mongo1:27017 --eval 'print(\"waited for connection\")' &>/dev/null; do
           sleep 2
         done
         echo 'MongoDB started'
-        mongo --host mongo1:27017 --eval '
+        mongosh --host mongo1:27017 --eval '
           rs.initiate({
             _id: \"rs0\",
             members: [

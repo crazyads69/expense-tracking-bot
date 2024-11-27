@@ -18,4 +18,4 @@ RUN bunx prisma generate
 EXPOSE 3000
 
 # Run the app
-CMD ["sh", "-c", "until nc -z mongo1 27017; do echo waiting for mongodb; sleep 2; done; bun run src/index.ts"]
+CMD ["sh", "-c", "until mongosh --host mongo1:27017 --eval 'print(\"waited for connection\")' &>/dev/null; do echo waiting for mongodb; sleep 2; done; bun run src/index.ts"]
