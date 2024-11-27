@@ -9,43 +9,76 @@ services:
       - DATABASE_URL=mongodb://mongo1:27017,mongo2:27018,mongo3:27019/expense_tracker?replicaSet=rs0
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     depends_on:
-      - mongo1
-      - mongo2
-      - mongo3
+      mongo-init:
+        condition: service_completed_successfully
 
   mongo1:
-    image: mongo:latest
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+    image: mongo:4.4
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27017",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+      ]
     ports:
       - "27017:27017"
     volumes:
       - mongo1_data:/data/db
 
   mongo2:
-    image: mongo:latest
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
+    image: mongo:4.4
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27018",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+      ]
     ports:
       - "27018:27018"
     volumes:
       - mongo2_data:/data/db
 
   mongo3:
-    image: mongo:latest
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
+    image: mongo:4.4
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27019",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+      ]
     ports:
       - "27019:27019"
     volumes:
       - mongo3_data:/data/db
 
   mongo-init:
-    image: mongo:latest
+    image: mongo:4.4
     depends_on:
       - mongo1
       - mongo2
       - mongo3
     command: >
       bash -c "
-        sleep 10
+        echo 'Waiting for MongoDB to start...'
+        until mongo --host mongo1:27017 --eval 'print(\"waited for connection\")'; do
+          sleep 2
+        done
+        echo 'MongoDB started'
         mongo --host mongo1:27017 --eval '
           rs.initiate({
             _id: \"rs0\",
@@ -56,6 +89,7 @@ services:
             ]
           })
         '
+        echo 'MongoDB replica set initialized'
       "
 
 volumes:

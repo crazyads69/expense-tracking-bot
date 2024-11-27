@@ -1,10 +1,11 @@
 # Dockerfile
-FROM oven/bun:alpine as base
+FROM oven/bun:1 as base
 WORKDIR /usr/src/app
 
 # Install dependencies
 COPY package.json bun.lockb ./
 RUN bun install --frozen-lockfile
+RUN apt-get update && apt-get install -y netcat
 
 # Copy source code
 COPY . .
@@ -16,4 +17,4 @@ RUN bunx prisma generate
 EXPOSE 3000
 
 # Run the app
-CMD ["bun", "run", "src/index.ts"]
+CMD ["sh", "-c", "until nc -z mongo1 27017; do echo waiting for mongodb; sleep 2; done; bun run src/index.ts"]
