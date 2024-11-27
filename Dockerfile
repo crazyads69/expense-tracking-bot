@@ -4,8 +4,6 @@ WORKDIR /usr/src/app
 
 # Install dependencies
 COPY package.json bun.lockb ./
-# Install netcat for the wait-for-it functionality
-RUN apk add --no-cache netcat-openbsd
 RUN bun install --frozen-lockfile
 
 # Copy source code
@@ -18,4 +16,4 @@ RUN bunx prisma generate
 EXPOSE 3000
 
 # Run the app
-CMD ["sh", "-c", "until mongosh --host mongo1:27017 --eval 'print(\"waited for connection\")' &>/dev/null; do echo waiting for mongodb; sleep 2; done; bun run src/index.ts"]
+CMD ["bun", "run", "src/index.ts"]

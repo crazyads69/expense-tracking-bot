@@ -9,22 +9,13 @@ services:
       - DATABASE_URL=mongodb://mongo1:27017,mongo2:27018,mongo3:27019/expense_tracker?replicaSet=rs0
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     depends_on:
-      mongo-init:
-        condition: service_completed_successfully
+      - mongo1
+      - mongo2
+      - mongo3
 
   mongo1:
     image: mongo:latest
-    command:
-      [
-        "--replSet",
-        "rs0",
-        "--bind_ip_all",
-        "--port",
-        "27017",
-        "--quiet",
-        "--logpath",
-        "/dev/null",
-      ]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     ports:
       - "27017:27017"
     volumes:
@@ -32,17 +23,7 @@ services:
 
   mongo2:
     image: mongo:latest
-    command:
-      [
-        "--replSet",
-        "rs0",
-        "--bind_ip_all",
-        "--port",
-        "27018",
-        "--quiet",
-        "--logpath",
-        "/dev/null",
-      ]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
     ports:
       - "27018:27018"
     volumes:
@@ -50,17 +31,7 @@ services:
 
   mongo3:
     image: mongo:latest
-    command:
-      [
-        "--replSet",
-        "rs0",
-        "--bind_ip_all",
-        "--port",
-        "27019",
-        "--quiet",
-        "--logpath",
-        "/dev/null",
-      ]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
     ports:
       - "27019:27019"
     volumes:
@@ -74,12 +45,8 @@ services:
       - mongo3
     command: >
       bash -c "
-        echo 'Waiting for MongoDB to start...'
-        until mongosh --host mongo1:27017 --eval 'print(\"waited for connection\")' &>/dev/null; do
-          sleep 2
-        done
-        echo 'MongoDB started'
-        mongosh --host mongo1:27017 --eval '
+        sleep 10
+        mongo --host mongo1:27017 --eval '
           rs.initiate({
             _id: \"rs0\",
             members: [
@@ -89,7 +56,6 @@ services:
             ]
           })
         '
-        echo 'MongoDB replica set initialized'
       "
 
 volumes:
