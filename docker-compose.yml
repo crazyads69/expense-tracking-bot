@@ -1,0 +1,98 @@
+services:
+  app:
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=mongodb://mongo1:27017,mongo2:27018,mongo3:27019/expense_tracker?replicaSet=rs0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      mongo-init:
+        condition: service_completed_successfully
+
+  mongo1:
+    image: mongo:latest
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27017",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+      ]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo1_data:/data/db
+
+  mongo2:
+    image: mongo:latest
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27018",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+      ]
+    ports:
+      - "27018:27018"
+    volumes:
+      - mongo2_data:/data/db
+
+  mongo3:
+    image: mongo:latest
+    command:
+      [
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27019",
+        "--quiet",
+        "--logpath",
+        "/dev/null",
+      ]
+    ports:
+      - "27019:27019"
+    volumes:
+      - mongo3_data:/data/db
+
+  mongo-init:
+    image: mongo:latest
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    command: >
+      bash -c "
+        echo 'Waiting for MongoDB to start...'
+        until mongo --host mongo1:27017 --eval 'print(\"waited for connection\")'; do
+          sleep 2
+        done
+        echo 'MongoDB started'
+        mongo --host mongo1:27017 --eval '
+          rs.initiate({
+            _id: \"rs0\",
+            members: [
+              {_id: 0, host: \"mongo1:27017\"},
+              {_id: 1, host: \"mongo2:27018\"},
+              {_id: 2, host: \"mongo3:27019\"}
+            ]
+          })
+        '
+        echo 'MongoDB replica set initialized'
+      "
+
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:

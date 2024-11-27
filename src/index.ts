@@ -1,7 +1,20 @@
-import { Elysia } from "elysia";
+import { SetupTelegramBot } from "./services/telegram_bot";
+import { PrismaClient } from "@prisma/client";
 
-const app = new Elysia().get("/", () => "Hello Elysia").listen(3000);
+const prisma = new PrismaClient();
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
+async function main() {
+  try {
+    await prisma.$connect();
+    console.log("Connected to database");
+
+    const bot = SetupTelegramBot();
+    bot.launch();
+
+    console.log("Telegram bot is running");
+  } catch (error) {
+    console.error("Error starting the application:", error);
+  }
+}
+
+main();

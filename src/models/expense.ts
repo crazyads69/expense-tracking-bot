@@ -1,3 +1,4 @@
+// src/models/expense.ts
 import { z } from "zod";
 
 export const ExpenseSchema = z.object({

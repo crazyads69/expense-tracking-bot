@@ -1,0 +1,29 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Expense {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  amount        Float
+  category      String
+  description   String
+  date          DateTime @default(now())
+  paymentMethod String
+  userId        String
+}
+
+model TaskClassification {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  taskType   String
+  tables     String[]
+  action     String
+  timeRange  String
+  parameters Json?
+  userId     String
+  createdAt  DateTime @default(now())
+}

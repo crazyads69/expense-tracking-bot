@@ -3,12 +3,14 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "run": "bun run src/index.ts"
   },
   "dependencies": {
-    "@elysiajs/eden": "latest",
-    "elysia": "latest",
-    "openai": "^4.73.1",
+    "@prisma/client": "^5.22.0",
+    "mongodb": "latest",
+    "openai": "latest",
+    "prisma": "^5.22.0",
     "telegraf": "latest",
     "zod": "latest"
   },
